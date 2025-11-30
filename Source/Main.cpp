@@ -4,6 +4,7 @@
 #include "../Header/Util.h"
 
 #include <array>
+#include <algorithm>
 #include <cmath>
 #include <fstream>
 #include <vector>
@@ -147,7 +148,9 @@ int main()
     const Color bodyColor{ 0.90f, 0.93f, 0.95f, 1.0f };
     const Color ventColor{ 0.32f, 0.36f, 0.45f, 1.0f };
     const Color lampOffColor{ 0.22f, 0.18f, 0.20f, 1.0f };
+    const Color lampOnColor{ 0.93f, 0.22f, 0.20f, 1.0f };
     const Color screenOffColor{ 0.08f, 0.10f, 0.12f, 1.0f };
+    const Color screenOnColor{ 0.18f, 0.68f, 0.72f, 1.0f };
     const Color bowlColor{ 0.78f, 0.82f, 0.88f, 1.0f };
 
     const float acWidth = 480.0f;
@@ -156,7 +159,9 @@ int main()
     const float acY = 140.0f;
 
     RectShape acBody{ acX, acY, acWidth, acHeight, bodyColor };
-    RectShape ventBar{ acX + 24.0f, acY + acHeight - 64.0f, acWidth - 48.0f, 16.0f, ventColor };
+    const float ventClosedHeight = 4.0f;
+    const float ventOpenHeight = 18.0f;
+    RectShape ventBar{ acX + 24.0f, acY + acHeight - 64.0f, acWidth - 48.0f, ventClosedHeight, ventColor };
     CircleShape lamp{ acX + acWidth - 44.0f, acY + acHeight - 26.0f, 14.0f, lampOffColor };
 
     const float screenWidth = 94.0f;
@@ -207,8 +212,50 @@ int main()
 
     setCustomCursorIfPresent();
 
+    bool isOn = false;
+    bool lockedByFullBowl = false;
+    float ventOpenness = 0.0f; // 0 closed, 1 open
+    const float ventAnimSpeed = 1.5f; // openness units per second
+    double lastTime = glfwGetTime();
+    bool prevMouseDown = false;
+
     while (!glfwWindowShouldClose(window))
     {
+        double currentTime = glfwGetTime();
+        float deltaTime = static_cast<float>(currentTime - lastTime);
+        lastTime = currentTime;
+
+        double mouseX, mouseY;
+        glfwGetCursorPos(window, &mouseX, &mouseY);
+        bool mouseDown = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+        if (mouseDown && !prevMouseDown)
+        {
+            float dx = static_cast<float>(mouseX) - lamp.x;
+            float dy = static_cast<float>(mouseY) - lamp.y;
+            float distSq = dx * dx + dy * dy;
+            if (distSq <= lamp.radius * lamp.radius && !lockedByFullBowl)
+            {
+                isOn = !isOn;
+            }
+        }
+        prevMouseDown = mouseDown;
+
+        float targetOpenness = isOn ? 1.0f : 0.0f;
+        if (ventOpenness < targetOpenness)
+        {
+            ventOpenness = std::min(targetOpenness, ventOpenness + ventAnimSpeed * deltaTime);
+        }
+        else if (ventOpenness > targetOpenness)
+        {
+            ventOpenness = std::max(targetOpenness, ventOpenness - ventAnimSpeed * deltaTime);
+        }
+
+        lamp.color = isOn ? lampOnColor : lampOffColor;
+        float ventHeight = ventClosedHeight + (ventOpenHeight - ventClosedHeight) * ventOpenness;
+        ventBar.h = ventHeight;
+
+        Color screenColor = isOn ? screenOnColor : screenOffColor;
+
         glClear(GL_COLOR_BUFFER_BIT);
 
         drawRect(acBody.x, acBody.y, acBody.w, acBody.h, acBody.color);
@@ -217,7 +264,7 @@ int main()
 
         for (const auto& screen : screens)
         {
-            drawRect(screen.x, screen.y, screen.w, screen.h, screen.color);
+            drawRect(screen.x, screen.y, screen.w, screen.h, screenColor);
         }
 
         drawFrame(bowlOutline, bowlThickness);

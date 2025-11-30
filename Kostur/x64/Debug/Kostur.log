@@ -1,5 +1,2 @@
 ﻿  Main.cpp
-  Util.cpp
-D:\Documents\fax\7. semestar\racunarska grafika\2d\klima-simulator\Source\Util.cpp(1,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  Generating Code...
   Kostur.vcxproj -> D:\Documents\fax\7. semestar\racunarska grafika\2d\klima-simulator\x64\Debug\Kostur.exe
