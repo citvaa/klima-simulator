@@ -1,12 +1,12 @@
-# AC Simulator
+AC Simulator
 
-A tiny 2D OpenGL demo of an AC remote and unit.
+Small 2D OpenGL demo of an AC unit and remote.
 
-- Toggle the lamp to power the AC on or off.
-- Adjust the desired temperature with the arrow panel or keyboard keys.
-- Vent animates; status icon reflects temps; water fills over time and Space drains it.
+Usage:
+- Click lamp to power on/off.
+- Arrow keys or on-screen arrows change target temperature.
+- Space drains the water bowl; it fills over time.
 
 Build & Run:
-- Install dependencies: OpenGL, GLFW, GLEW, and FreeType (e.g., `vcpkg install freetype` or add a NuGet FreeType package). The code expects FreeType headers/libs to be on the include/lib path.
-- By default the text renderer loads `C:\Windows\Fonts\arial.ttf`; change the font path in `Source/TextRenderer.cpp` if desired.
-- Open ac-simulator.sln in Visual Studio (x64), build, and run. The window resizes and centers the scene automatically.
+- Requires OpenGL + GLFW + GLEW + FreeType (place freetype.dll next to the exe or add its folder to PATH).
+- Open `ac-simulator.sln` (x64), build, and run the exe from `x64/Debug`.
