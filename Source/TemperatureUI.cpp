@@ -66,8 +66,10 @@ namespace
 
     void drawHeatIcon(Renderer2D& renderer, float cx, float cy, float radius, const Color& outer, const Color& inner)
     {
+        float baseY = cy + radius * 0.04f; // slight drop to center visually
+
         // Outer flame: layered taper made of circles and shrinking bands
-        renderer.drawCircle(cx, cy + radius * 0.25f, radius, outer);
+        renderer.drawCircle(cx, baseY, radius, outer);
 
         float bandHeight = radius * 0.25f;
         float bandWidth = radius * 1.3f;
@@ -77,13 +79,13 @@ namespace
             float shrink = 1.0f - t * 0.18f;
             float w = bandWidth * shrink;
             float h = bandHeight;
-            float y = cy + radius * 0.45f - t * (h * 0.75f);
+            float y = baseY + radius * 0.35f - t * (h * 0.75f);
             renderer.drawRect(cx - w * 0.5f, y - h * 0.5f, w, h, outer);
         }
 
         // Inner flame: smaller droplet for contrast
         float innerR = radius * 0.6f;
-        renderer.drawCircle(cx, cy + innerR * 0.05f, innerR, inner);
+        renderer.drawCircle(cx, baseY + innerR * 0.05f, innerR, inner);
 
         float innerBandW = innerR * 1.1f;
         float innerBandH = innerR * 0.35f;
@@ -93,7 +95,7 @@ namespace
             float shrink = 1.0f - t * 0.22f;
             float w = innerBandW * shrink;
             float h = innerBandH;
-            float y = cy + innerR * 0.4f - t * (h * 0.8f);
+            float y = baseY + innerR * 0.4f - t * (h * 0.8f);
             renderer.drawRect(cx - w * 0.5f, y - h * 0.5f, w, h, inner);
         }
     }
