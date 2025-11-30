@@ -31,7 +31,7 @@ int main()
 
     int windowWidth = WINDOW_WIDTH;
     int windowHeight = WINDOW_HEIGHT;
-    GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "Kostur", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "AC Simulator", NULL, NULL);
     if (window == NULL) return endProgram("Prozor nije uspeo da se kreira.");
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);

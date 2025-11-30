@@ -8,4 +8,4 @@ Jednostavan 2D OpenGL demo klime sa sledećim ponašanjem:
 - Kursor se učitava iz `Resources/cursor.png` ako postoji, u suprotnom se koristi proceduralni.
 
 ## Pokretanje
-Projekat je Visual Studio C++ (OpenGL/GLFW/GLEW). Otvoriti `Kostur.sln`, build, i pokrenuti (Debug/Release, x64). Fullscreen i promena veličine su podržani; scena se automatski centrira.
+Projekat je Visual Studio C++ (OpenGL/GLFW/GLEW). Otvoriti `ac-simulator.sln`, build, i pokrenuti (Debug/Release, x64). Fullscreen i promena veličine su podržani; scena se automatski centrira.
