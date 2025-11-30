@@ -1,7 +1,4 @@
-﻿  Controls.cpp
-  Main.cpp
-  Renderer2D.cpp
-  State.cpp
-  TemperatureUI.cpp
-  Generating Code...
+﻿  Main.cpp
+D:\Documents\fax\7. semestar\racunarska grafika\2d\klima-simulator\Source\Main.cpp(51,73): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Documents\fax\7. semestar\racunarska grafika\2d\klima-simulator\Source\Main.cpp(51,44): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
   Kostur.vcxproj -> D:\Documents\fax\7. semestar\racunarska grafika\2d\klima-simulator\x64\Debug\Kostur.exe
