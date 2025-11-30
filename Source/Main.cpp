@@ -15,6 +15,13 @@
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 800;
 
+struct ResizeContext
+{
+    Renderer2D* renderer = nullptr;
+    int* windowWidth = nullptr;
+    int* windowHeight = nullptr;
+};
+
 int main()
 {
     glfwInit();
@@ -22,7 +29,9 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Kostur", NULL, NULL);
+    int windowWidth = WINDOW_WIDTH;
+    int windowHeight = WINDOW_HEIGHT;
+    GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "Kostur", NULL, NULL);
     if (window == NULL) return endProgram("Prozor nije uspeo da se kreira.");
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
@@ -31,13 +40,28 @@ int main()
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    glViewport(0, 0, windowWidth, windowHeight);
 
     const Color backgroundColor{ 0.10f, 0.12f, 0.16f, 1.0f };
     glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
 
     // Shader program and basic geometry
-    Renderer2D renderer(WINDOW_WIDTH, WINDOW_HEIGHT, "Shaders/basic.vert", "Shaders/basic.frag");
+    Renderer2D renderer(windowWidth, windowHeight, "Shaders/basic.vert", "Shaders/basic.frag");
+
+    ResizeContext resizeCtx;
+    resizeCtx.renderer = &renderer;
+    resizeCtx.windowWidth = &windowWidth;
+    resizeCtx.windowHeight = &windowHeight;
+    glfwSetWindowUserPointer(window, &resizeCtx);
+    glfwSetFramebufferSizeCallback(window, [](GLFWwindow* win, int w, int h)
+    {
+        auto* ctx = static_cast<ResizeContext*>(glfwGetWindowUserPointer(win));
+        if (!ctx) return;
+        glViewport(0, 0, w, h);
+        if (ctx->windowWidth) *ctx->windowWidth = w;
+        if (ctx->windowHeight) *ctx->windowHeight = h;
+        if (ctx->renderer) ctx->renderer->setWindowSize(static_cast<float>(w), static_cast<float>(h));
+    });
 
     const Color bodyColor{ 0.90f, 0.93f, 0.95f, 1.0f };
     const Color ventColor{ 0.32f, 0.36f, 0.45f, 1.0f };

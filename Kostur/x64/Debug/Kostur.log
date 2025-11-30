@@ -1,2 +1,7 @@
-﻿  TemperatureUI.cpp
+﻿  Controls.cpp
+  Main.cpp
+  Renderer2D.cpp
+  State.cpp
+  TemperatureUI.cpp
+  Generating Code...
   Kostur.vcxproj -> D:\Documents\fax\7. semestar\racunarska grafika\2d\klima-simulator\x64\Debug\Kostur.exe

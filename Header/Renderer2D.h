@@ -29,6 +29,7 @@ public:
     void drawCircle(float cx, float cy, float radius, const Color& color, int segments = 48) const;
     void drawFrame(const RectShape& rect, float thickness) const;
     void drawTriangle(float x1, float y1, float x2, float y2, float x3, float y3, const Color& color) const;
+    void setWindowSize(float width, float height);
 
 private:
     float m_windowWidth;

@@ -52,6 +52,12 @@ Renderer2D::~Renderer2D()
     if (m_program != 0) glDeleteProgram(m_program);
 }
 
+void Renderer2D::setWindowSize(float width, float height)
+{
+    m_windowWidth = width;
+    m_windowHeight = height;
+}
+
 void Renderer2D::drawRect(float x, float y, float w, float h, const Color& color) const
 {
     float vertices[12];
