@@ -106,7 +106,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;freetype.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -121,6 +121,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;freetype.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -129,6 +130,7 @@
     <ClCompile Include="Source\Renderer2D.cpp" />
     <ClCompile Include="Source\State.cpp" />
     <ClCompile Include="Source\TemperatureUI.cpp" />
+    <ClCompile Include="Source\TextRenderer.cpp" />
     <ClCompile Include="Source\Util.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -136,10 +138,13 @@
     <ClInclude Include="Header\Renderer2D.h" />
     <ClInclude Include="Header\State.h" />
     <ClInclude Include="Header\TemperatureUI.h" />
+    <ClInclude Include="Header\TextRenderer.h" />
     <ClInclude Include="Header\stb_image.h" />
     <ClInclude Include="Header\Util.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\text.frag" />
+    <None Include="Shaders\text.vert" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

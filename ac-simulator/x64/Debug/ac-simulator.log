@@ -1,2 +1,5 @@
 ﻿  Main.cpp
-  ac-simulator.vcxproj -> D:\Documents\fax\7. semestar\racunarska grafika\2d\ac-simulator\x64\Debug\ac-simulator.exe
+  TemperatureUI.cpp
+  TextRenderer.cpp
+  Generating Code...
+D:\Documents\fax\7. semestar\racunarska grafika\2d\ac-simulator\Source\TextRenderer.cpp(5,10): error C1083: Cannot open include file: 'ft2build.h': No such file or directory

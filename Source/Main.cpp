@@ -6,6 +6,7 @@
 #include "../Header/State.h"
 #include "../Header/TemperatureUI.h"
 #include "../Header/Controls.h"
+#include "../Header/TextRenderer.h"
 
 #include <array>
 #include <algorithm>
@@ -17,6 +18,7 @@ const int WINDOW_HEIGHT = 800;
 struct ResizeContext
 {
     Renderer2D* renderer = nullptr;
+    TextRenderer* textRenderer = nullptr;
     int* windowWidth = nullptr;
     int* windowHeight = nullptr;
 };
@@ -48,9 +50,11 @@ int main()
 
     // Shader program and basic geometry
     Renderer2D renderer(fbWidth, fbHeight, "Shaders/basic.vert", "Shaders/basic.frag");
+    TextRenderer textRenderer(fbWidth, fbHeight);
 
     ResizeContext resizeCtx;
     resizeCtx.renderer = &renderer;
+    resizeCtx.textRenderer = &textRenderer;
     resizeCtx.windowWidth = &windowWidth;
     resizeCtx.windowHeight = &windowHeight;
     glfwSetWindowUserPointer(window, &resizeCtx);
@@ -62,6 +66,7 @@ int main()
         if (ctx->windowWidth) *ctx->windowWidth = w;
         if (ctx->windowHeight) *ctx->windowHeight = h;
         if (ctx->renderer) ctx->renderer->setWindowSize(static_cast<float>(w), static_cast<float>(h));
+        if (ctx->textRenderer) ctx->textRenderer->setWindowSize(static_cast<float>(w), static_cast<float>(h));
     });
 
     const Color bodyColor{ 0.90f, 0.93f, 0.95f, 1.0f };
@@ -229,8 +234,8 @@ int main()
 
         if (appState.isOn)
         {
-            drawTemperatureValue(renderer, appState.desiredTemp, screensDraw[0], digitColor);
-            drawTemperatureValue(renderer, appState.currentTemp, screensDraw[1], digitColor);
+            drawTemperatureValue(textRenderer, appState.desiredTemp, screensDraw[0], digitColor);
+            drawTemperatureValue(textRenderer, appState.currentTemp, screensDraw[1], digitColor);
             drawStatusIcon(renderer, screensDraw[2], appState.desiredTemp, appState.currentTemp);
         }
 

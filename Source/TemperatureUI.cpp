@@ -3,65 +3,15 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <sstream>
 
 namespace
 {
-    constexpr float kDigitWidth = 18.0f;
-    constexpr float kDigitHeight = 32.0f;
-    constexpr float kDigitThickness = 3.0f;
-    constexpr float kDigitSpacing = 6.0f;
-
-    // Segment order: A, B, C, D, E, F, G
-    const uint8_t kDigitMasks[10] = {
-        0b00111111, // 0
-        0b00000110, // 1
-        0b01011011, // 2
-        0b01001111, // 3
-        0b01100110, // 4
-        0b01101101, // 5
-        0b01111101, // 6
-        0b00000111, // 7
-        0b01111111, // 8
-        0b01101111  // 9
-    };
-
     int clampInt(int v, int lo, int hi)
     {
         if (v < lo) return lo;
         if (v > hi) return hi;
         return v;
-    }
-
-    void drawDigit(Renderer2D& renderer, float x, float y, int digit, const Color& color)
-    {
-        if (digit < 0 || digit > 9) return;
-
-        struct Segment { float x, y, w, h; };
-        static const Segment segments[7] = {
-            { kDigitThickness, 0.0f, kDigitWidth - 2.0f * kDigitThickness, kDigitThickness }, // A
-            { kDigitWidth - kDigitThickness, kDigitThickness, kDigitThickness, kDigitHeight * 0.5f - kDigitThickness }, // B
-            { kDigitWidth - kDigitThickness, kDigitHeight * 0.5f, kDigitThickness, kDigitHeight * 0.5f - kDigitThickness }, // C
-            { kDigitThickness, kDigitHeight - kDigitThickness, kDigitWidth - 2.0f * kDigitThickness, kDigitThickness }, // D
-            { 0.0f, kDigitHeight * 0.5f, kDigitThickness, kDigitHeight * 0.5f - kDigitThickness }, // E
-            { 0.0f, kDigitThickness, kDigitThickness, kDigitHeight * 0.5f - kDigitThickness }, // F
-            { kDigitThickness, kDigitHeight * 0.5f - kDigitThickness * 0.5f, kDigitWidth - 2.0f * kDigitThickness, kDigitThickness } // G
-        };
-
-        uint8_t mask = kDigitMasks[digit];
-        for (int i = 0; i < 7; ++i)
-        {
-            if (mask & (1 << i))
-            {
-                const auto& s = segments[i];
-                renderer.drawRect(x + s.x, y + s.y, s.w, s.h, color);
-            }
-        }
-    }
-
-    void drawMinus(Renderer2D& renderer, float x, float y, const Color& color)
-    {
-        float lineY = y + (kDigitHeight * 0.5f - kDigitThickness * 0.5f);
-        renderer.drawRect(x + kDigitThickness, lineY, kDigitWidth - 2.0f * kDigitThickness, kDigitThickness, color);
     }
 
     void drawHeatIcon(Renderer2D& renderer, float cx, float cy, float radius, const Color& outer, const Color& inner)
@@ -157,40 +107,31 @@ namespace
     }
 }
 
-void drawTemperatureValue(Renderer2D& renderer, float value, const RectShape& screen, const Color& color)
+void drawTemperatureValue(TextRenderer& textRenderer, float value, const RectShape& screen, const Color& color)
 {
     int rounded = static_cast<int>(std::round(value));
     rounded = clampInt(rounded, -99, 99);
-    bool negative = rounded < 0;
-    int absVal = std::abs(rounded);
-    int tens = absVal / 10;
-    int ones = absVal % 10;
-    bool hasTens = absVal >= 10;
 
-    int digitCount = hasTens ? 2 : 1;
-    float totalWidth = digitCount * kDigitWidth + (digitCount - 1) * kDigitSpacing;
-    if (negative)
-    {
-        totalWidth += kDigitWidth + kDigitSpacing;
-    }
+    std::ostringstream ss;
+    ss << rounded;
+    std::string text = ss.str();
 
-    float startX = screen.x + (screen.w - totalWidth) * 0.5f;
-    float startY = screen.y + (screen.h - kDigitHeight) * 0.5f;
-    float cursorX = startX;
+    TextMetrics metrics = textRenderer.measure(text, 1.0f);
+    float baseWidth = std::max(metrics.width, 1.0f);
+    float baseHeight = std::max(metrics.height, 1.0f);
 
-    if (negative)
-    {
-        drawMinus(renderer, cursorX, startY, color);
-        cursorX += kDigitWidth + kDigitSpacing;
-    }
+    // Scale text to fit the display area with a small margin.
+    float scaleX = screen.w / baseWidth;
+    float scaleY = screen.h / baseHeight;
+    float scale = std::min(scaleX, scaleY) * 0.85f;
 
-    if (hasTens)
-    {
-        drawDigit(renderer, cursorX, startY, tens, color);
-        cursorX += kDigitWidth + kDigitSpacing;
-    }
+    float finalWidth = metrics.width * scale;
+    float finalHeight = metrics.height * scale;
 
-    drawDigit(renderer, cursorX, startY, ones, color);
+    float startX = screen.x + (screen.w - finalWidth) * 0.5f;
+    float startY = screen.y + (screen.h - finalHeight) * 0.5f;
+
+    textRenderer.drawText(text, startX, startY, scale, color);
 }
 
 void drawStatusIcon(Renderer2D& renderer, const RectShape& screen, float desired, float current)
