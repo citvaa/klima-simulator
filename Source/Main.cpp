@@ -40,13 +40,15 @@ int main()
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glViewport(0, 0, windowWidth, windowHeight);
+    int fbWidth = 0, fbHeight = 0;
+    glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+    glViewport(0, 0, fbWidth, fbHeight);
 
     const Color backgroundColor{ 0.10f, 0.12f, 0.16f, 1.0f };
     glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
 
     // Shader program and basic geometry
-    Renderer2D renderer(windowWidth, windowHeight, "Shaders/basic.vert", "Shaders/basic.frag");
+    Renderer2D renderer(static_cast<float>(fbWidth), static_cast<float>(fbHeight), "Shaders/basic.vert", "Shaders/basic.frag");
 
     ResizeContext resizeCtx;
     resizeCtx.renderer = &renderer;
