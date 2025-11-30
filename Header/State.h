@@ -11,7 +11,7 @@ struct AppState
     bool prevMouseDown = false;
     float desiredTemp = 24.0f;
     float currentTemp = 30.0f;
-    float tempDriftSpeed = 0.5f; // degrees per second
+    float tempDriftSpeed = 0.8f; // degrees per second
     float tempChangeStep = 1.0f;
     bool prevUpPressed = false;
     bool prevDownPressed = false;

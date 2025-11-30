@@ -66,24 +66,71 @@ namespace
 
     void drawHeatIcon(Renderer2D& renderer, float cx, float cy, float radius, const Color& outer, const Color& inner)
     {
+        // Outer flame: layered taper made of circles and shrinking bands
         renderer.drawCircle(cx, cy + radius * 0.25f, radius, outer);
-        renderer.drawCircle(cx, cy, radius * 0.65f, inner);
-        renderer.drawRect(cx - radius * 0.25f, cy + radius * 0.4f, radius * 0.5f, radius * 0.5f, outer);
+
+        float bandHeight = radius * 0.25f;
+        float bandWidth = radius * 1.3f;
+        for (int i = 0; i < 5; ++i)
+        {
+            float t = static_cast<float>(i);
+            float shrink = 1.0f - t * 0.18f;
+            float w = bandWidth * shrink;
+            float h = bandHeight;
+            float y = cy + radius * 0.45f - t * (h * 0.75f);
+            renderer.drawRect(cx - w * 0.5f, y - h * 0.5f, w, h, outer);
+        }
+
+        // Inner flame: smaller droplet for contrast
+        float innerR = radius * 0.6f;
+        renderer.drawCircle(cx, cy + innerR * 0.05f, innerR, inner);
+
+        float innerBandW = innerR * 1.1f;
+        float innerBandH = innerR * 0.35f;
+        for (int i = 0; i < 3; ++i)
+        {
+            float t = static_cast<float>(i);
+            float shrink = 1.0f - t * 0.22f;
+            float w = innerBandW * shrink;
+            float h = innerBandH;
+            float y = cy + innerR * 0.4f - t * (h * 0.8f);
+            renderer.drawRect(cx - w * 0.5f, y - h * 0.5f, w, h, inner);
+        }
     }
 
     void drawSnowIcon(Renderer2D& renderer, float cx, float cy, float size, const Color& color)
     {
-        float arm = size * 0.45f;
+        float arm = size * 0.48f;
         float thickness = size * 0.12f;
+
+        // Cross arms
         renderer.drawRect(cx - thickness * 0.5f, cy - arm, thickness, arm * 2.0f, color);
         renderer.drawRect(cx - arm, cy - thickness * 0.5f, arm * 2.0f, thickness, color);
 
-        float offset = arm * 0.7f;
-        float small = thickness;
-        renderer.drawRect(cx - offset - small, cy - small, small, small * 2.0f, color);
-        renderer.drawRect(cx + offset, cy - small, small, small * 2.0f, color);
-        renderer.drawRect(cx - small, cy - offset - small, small * 2.0f, small, color);
-        renderer.drawRect(cx - small, cy + offset, small * 2.0f, small, color);
+        // End caps
+        float cap = thickness * 1.2f;
+        renderer.drawRect(cx - cap * 0.5f, cy - arm - cap * 0.5f, cap, cap, color);
+        renderer.drawRect(cx - cap * 0.5f, cy + arm - cap * 0.5f, cap, cap, color);
+        renderer.drawRect(cx - arm - cap * 0.5f, cy - cap * 0.5f, cap, cap, color);
+        renderer.drawRect(cx + arm - cap * 0.5f, cy - cap * 0.5f, cap, cap, color);
+
+        // Diagonal arms made of stepped squares (since we can't rotate rects)
+        float step = thickness * 0.9f;
+        int steps = 4;
+        auto drawDiag = [&](float dxSign, float dySign)
+        {
+            for (int i = 1; i <= steps; ++i)
+            {
+                float off = step * static_cast<float>(i);
+                renderer.drawRect(cx + dxSign * off - step * 0.5f, cy + dySign * off - step * 0.5f, step, step, color);
+                renderer.drawRect(cx + dxSign * (off - step * 0.5f) - step * 0.5f, cy + dySign * (off + step * 0.5f) - step * 0.5f, step, step, color);
+            }
+        };
+
+        drawDiag(1.0f, 1.0f);
+        drawDiag(1.0f, -1.0f);
+        drawDiag(-1.0f, 1.0f);
+        drawDiag(-1.0f, -1.0f);
     }
 
     void drawCheckIcon(Renderer2D& renderer, float cx, float cy, float size, const Color& color)
