@@ -12,6 +12,8 @@
 #include <algorithm>
 #include <cmath>
 #include <chrono>
+#include <string>
+#include <cstdio>
 #include <thread>
 
 const int WINDOW_WIDTH = 800;
@@ -163,6 +165,9 @@ int main()
     setProceduralCursor();
 
     AppState appState{};
+    std::string frameStats = "FPS --";
+    double logAccumulator = 0.0;
+    int logFrames = 0;
 
     double lastTime = glfwGetTime();
     double frameStart = lastTime;
@@ -173,6 +178,18 @@ int main()
         auto frameStartTime = std::chrono::steady_clock::now();
         float deltaTime = static_cast<float>(frameStart - lastTime);
         lastTime = frameStart;
+        logAccumulator += deltaTime;
+        ++logFrames;
+        if (logAccumulator >= 1.0)
+        {
+            double avgDelta = logAccumulator / static_cast<double>(logFrames);
+            double avgFps = avgDelta > 0.0 ? 1.0 / avgDelta : 0.0;
+            char buf[64];
+            std::snprintf(buf, sizeof(buf), "FPS %.1f", avgFps);
+            frameStats = buf;
+            logAccumulator = 0.0;
+            logFrames = 0;
+        }
 
         double mouseX, mouseY;
         glfwGetCursorPos(window, &mouseX, &mouseY);
@@ -287,6 +304,13 @@ int main()
         RectShape arrowBottom{ tempArrowDraw.x, tempArrowDraw.y + tempArrowDraw.h * 0.5f, tempArrowDraw.w, tempArrowDraw.h * 0.5f, arrowBg };
         drawHalfArrow(renderer, arrowTop, true, arrowColor, arrowBg);
         drawHalfArrow(renderer, arrowBottom, false, arrowColor, arrowBg);
+
+        if (!frameStats.empty())
+        {
+            float statsScale = 0.6f;
+            float margin = 16.0f;
+            textRenderer.drawText(frameStats, margin, margin, statsScale, digitColor);
+        }
 
         if (nameplateTexture != 0)
         {

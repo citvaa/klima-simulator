@@ -96,7 +96,7 @@ bool TextRenderer::loadFont(const std::string& fontPath, unsigned int pixelHeigh
     destroyGlyphTextures();
     m_fontPixelHeight = pixelHeight;
 
-    const std::string charset = "-0123456789C ";
+    const std::string charset = " -0123456789CFPSfpsdtm.";
     for (char c : charset)
     {
         if (FT_Load_Char(face, c, FT_LOAD_RENDER))
