@@ -1,5 +1,13 @@
 ﻿  Main.cpp
-  Renderer2D.cpp
   State.cpp
+D:\Documents\fax\7. semestar\racunarska grafika\2d\klima-simulator\Source\Main.cpp(73,24): error C2039: 'clamp': is not a member of 'std'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\fstream(20,1):
+      see declaration of 'std'
+  
+D:\Documents\fax\7. semestar\racunarska grafika\2d\klima-simulator\Source\Main.cpp(73,24): error C3861: 'clamp': identifier not found
+D:\Documents\fax\7. semestar\racunarska grafika\2d\klima-simulator\Source\State.cpp(49,30): error C2039: 'clamp': is not a member of 'std'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\cmath(915,1):
+      see declaration of 'std'
+  
+D:\Documents\fax\7. semestar\racunarska grafika\2d\klima-simulator\Source\State.cpp(49,30): error C3861: 'clamp': identifier not found
   Generating Code...
-  Kostur.vcxproj -> D:\Documents\fax\7. semestar\racunarska grafika\2d\klima-simulator\x64\Debug\Kostur.exe
