@@ -2,53 +2,14 @@
 #include <GLFW/glfw3.h>
 
 #include "../Header/Util.h"
+#include "../Header/Renderer2D.h"
+#include "../Header/State.h"
 
 #include <array>
-#include <algorithm>
-#include <cmath>
 #include <fstream>
-#include <vector>
-
-// Osnovni 2D pipeline: kolor sejder, VAO/VBO za pravougaonik i helper koji radi sa koordinatama u pikselima
-// (poreklo u gornjem levom uglu, y raste na dole)
 
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 800;
-
-struct Color
-{
-    float r, g, b, a;
-};
-
-struct RectShape
-{
-    float x, y, w, h;
-    Color color;
-};
-
-struct CircleShape
-{
-    float x, y, radius;
-    Color color;
-};
-
-void fillRectVertices(float x, float y, float w, float h, float* outVertices)
-{
-    // Konverzija iz piksel koordinata (0,0 u gornjem levom uglu) u NDC (-1..1)
-    float x0 = 2.0f * x / WINDOW_WIDTH - 1.0f;
-    float x1 = 2.0f * (x + w) / WINDOW_WIDTH - 1.0f;
-    float y0 = 1.0f - 2.0f * y / WINDOW_HEIGHT;
-    float y1 = 1.0f - 2.0f * (y + h) / WINDOW_HEIGHT;
-
-    // Dva trougla (6 temena) za pravougaonik
-    outVertices[0] = x0; outVertices[1] = y0;
-    outVertices[2] = x1; outVertices[3] = y0;
-    outVertices[4] = x1; outVertices[5] = y1;
-
-    outVertices[6] = x0; outVertices[7] = y0;
-    outVertices[8] = x1; outVertices[9] = y1;
-    outVertices[10] = x0; outVertices[11] = y1;
-}
 
 int main()
 {
@@ -71,79 +32,8 @@ int main()
     const Color backgroundColor{ 0.10f, 0.12f, 0.16f, 1.0f };
     glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
 
-    // Shader program za bojene 2D pravougaonike
-    unsigned int colorProgram = createShader("Shaders/basic.vert", "Shaders/basic.frag");
-    int uColorLocation = glGetUniformLocation(colorProgram, "uColor");
-
-    // Geometrija: staticki oblik (6 temena), pozicije se menjaju po crtanju
-    unsigned int vao, vbo;
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo);
-    glBindVertexArray(vao);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-    float initialVertices[12] = { 0.0f };
-    glBufferData(GL_ARRAY_BUFFER, sizeof(initialVertices), initialVertices, GL_DYNAMIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-    glBindVertexArray(0);
-
-    auto drawRect = [&](float x, float y, float w, float h, const Color& color)
-    {
-        float vertices[12];
-        fillRectVertices(x, y, w, h, vertices);
-
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-
-        glUseProgram(colorProgram);
-        glUniform4f(uColorLocation, color.r, color.g, color.b, color.a);
-        glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glBindVertexArray(0);
-    };
-
-    auto drawCircle = [&](float cx, float cy, float radius, const Color& color, int segments = 48)
-    {
-        std::vector<float> vertices;
-        vertices.reserve((segments + 2) * 2);
-
-        float centerX = 2.0f * cx / WINDOW_WIDTH - 1.0f;
-        float centerY = 1.0f - 2.0f * cy / WINDOW_HEIGHT;
-        vertices.push_back(centerX);
-        vertices.push_back(centerY);
-
-        const float twoPi = 6.28318530718f;
-        for (int i = 0; i <= segments; ++i)
-        {
-            float angle = twoPi * static_cast<float>(i) / static_cast<float>(segments);
-            float px = cx + std::cos(angle) * radius;
-            float py = cy + std::sin(angle) * radius;
-
-            float ndcX = 2.0f * px / WINDOW_WIDTH - 1.0f;
-            float ndcY = 1.0f - 2.0f * py / WINDOW_HEIGHT;
-
-            vertices.push_back(ndcX);
-            vertices.push_back(ndcY);
-        }
-
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_DYNAMIC_DRAW);
-
-        glUseProgram(colorProgram);
-        glUniform4f(uColorLocation, color.r, color.g, color.b, color.a);
-        glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLE_FAN, 0, static_cast<GLsizei>(vertices.size() / 2));
-        glBindVertexArray(0);
-    };
-
-    auto drawFrame = [&](const RectShape& rect, float thickness)
-    {
-        drawRect(rect.x, rect.y, rect.w, thickness, rect.color); // top
-        drawRect(rect.x, rect.y + rect.h - thickness, rect.w, thickness, rect.color); // bottom
-        drawRect(rect.x, rect.y, thickness, rect.h, rect.color); // left
-        drawRect(rect.x + rect.w - thickness, rect.y, thickness, rect.h, rect.color); // right
-    };
+    // Shader program and basic geometry
+    Renderer2D renderer(WINDOW_WIDTH, WINDOW_HEIGHT, "Shaders/basic.vert", "Shaders/basic.frag");
 
     const Color bodyColor{ 0.90f, 0.93f, 0.95f, 1.0f };
     const Color ventColor{ 0.32f, 0.36f, 0.45f, 1.0f };
@@ -159,6 +49,7 @@ int main()
     const float acY = 140.0f;
 
     RectShape acBody{ acX, acY, acWidth, acHeight, bodyColor };
+
     const float ventClosedHeight = 4.0f;
     const float ventOpenHeight = 18.0f;
     RectShape ventBar{ acX + 24.0f, acY + acHeight - 64.0f, acWidth - 48.0f, ventClosedHeight, ventColor };
@@ -212,12 +103,9 @@ int main()
 
     setCustomCursorIfPresent();
 
-    bool isOn = false;
-    bool lockedByFullBowl = false;
-    float ventOpenness = 0.0f; // 0 closed, 1 open
-    const float ventAnimSpeed = 1.5f; // openness units per second
+    AppState appState{};
+
     double lastTime = glfwGetTime();
-    bool prevMouseDown = false;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -228,46 +116,28 @@ int main()
         double mouseX, mouseY;
         glfwGetCursorPos(window, &mouseX, &mouseY);
         bool mouseDown = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
-        if (mouseDown && !prevMouseDown)
-        {
-            float dx = static_cast<float>(mouseX) - lamp.x;
-            float dy = static_cast<float>(mouseY) - lamp.y;
-            float distSq = dx * dx + dy * dy;
-            if (distSq <= lamp.radius * lamp.radius && !lockedByFullBowl)
-            {
-                isOn = !isOn;
-            }
-        }
-        prevMouseDown = mouseDown;
 
-        float targetOpenness = isOn ? 1.0f : 0.0f;
-        if (ventOpenness < targetOpenness)
-        {
-            ventOpenness = std::min(targetOpenness, ventOpenness + ventAnimSpeed * deltaTime);
-        }
-        else if (ventOpenness > targetOpenness)
-        {
-            ventOpenness = std::max(targetOpenness, ventOpenness - ventAnimSpeed * deltaTime);
-        }
+        handlePowerToggle(appState, mouseX, mouseY, mouseDown, lamp);
+        updateVent(appState, deltaTime);
 
-        lamp.color = isOn ? lampOnColor : lampOffColor;
-        float ventHeight = ventClosedHeight + (ventOpenHeight - ventClosedHeight) * ventOpenness;
+        lamp.color = appState.isOn ? lampOnColor : lampOffColor;
+        float ventHeight = ventClosedHeight + (ventOpenHeight - ventClosedHeight) * appState.ventOpenness;
         ventBar.h = ventHeight;
 
-        Color screenColor = isOn ? screenOnColor : screenOffColor;
+        Color screenColor = appState.isOn ? screenOnColor : screenOffColor;
 
         glClear(GL_COLOR_BUFFER_BIT);
 
-        drawRect(acBody.x, acBody.y, acBody.w, acBody.h, acBody.color);
-        drawRect(ventBar.x, ventBar.y, ventBar.w, ventBar.h, ventBar.color);
-        drawCircle(lamp.x, lamp.y, lamp.radius, lamp.color);
+        renderer.drawRect(acBody.x, acBody.y, acBody.w, acBody.h, acBody.color);
+        renderer.drawRect(ventBar.x, ventBar.y, ventBar.w, ventBar.h, ventBar.color);
+        renderer.drawCircle(lamp.x, lamp.y, lamp.radius, lamp.color);
 
         for (const auto& screen : screens)
         {
-            drawRect(screen.x, screen.y, screen.w, screen.h, screenColor);
+            renderer.drawRect(screen.x, screen.y, screen.w, screen.h, screenColor);
         }
 
-        drawFrame(bowlOutline, bowlThickness);
+        renderer.drawFrame(bowlOutline, bowlThickness);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
