@@ -14,6 +14,7 @@ namespace
         return v;
     }
 
+    // Simple flame shape built from circles and bands.
     void drawHeatIcon(Renderer2D& renderer, float cx, float cy, float radius, const Color& outer, const Color& inner)
     {
         float baseY = cy + radius * 0.04f; // slight drop to center visually
@@ -85,6 +86,7 @@ namespace
         drawDiag(-1.0f, -1.0f);
     }
 
+    // Checkmark assembled from tiny squares.
     void drawCheckIcon(Renderer2D& renderer, float cx, float cy, float size, const Color& color)
     {
         float dot = size * 0.1f;
@@ -109,6 +111,7 @@ namespace
 
 void drawTemperatureValue(TextRenderer& textRenderer, float value, const RectShape& screen, const Color& color)
 {
+    // Auto-scale numeric text to fit screen bounds.
     int rounded = static_cast<int>(std::round(value));
     rounded = clampInt(rounded, -99, 99);
 

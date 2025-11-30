@@ -16,11 +16,11 @@
 #include <cstdio>
 #include <thread>
 
-const int WINDOW_WIDTH = 800;
-const int WINDOW_HEIGHT = 800;
+// Entry point: fullscreen AC simulator with timed logic and on-screen UI.
 const double TARGET_FPS = 75.0;
 const double TARGET_FRAME_TIME = 1.0 / TARGET_FPS;
 
+// Pointers handed to the framebuffer-size callback so we can update renderers on resize.
 struct ResizeContext
 {
     Renderer2D* renderer = nullptr;
@@ -37,10 +37,10 @@ int main()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWmonitor* primary = glfwGetPrimaryMonitor();
-    const GLFWvidmode* mode = glfwGetVideoMode(primary);
+    const GLFWvidmode* mode = glfwGetVideoMode(primary); // fullscreen mode descriptor
 
-    int windowWidth = mode ? mode->width : WINDOW_WIDTH;
-    int windowHeight = mode ? mode->height : WINDOW_HEIGHT;
+    int windowWidth = mode ? mode->width : 800;
+    int windowHeight = mode ? mode->height : 800;
     GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "AC Simulator", primary, NULL);
     if (window == NULL) return endProgram("Prozor nije uspeo da se kreira.");
     glfwMakeContextCurrent(window);
@@ -152,6 +152,7 @@ int main()
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
     glBindVertexArray(0);
 
+    // Create and set a simple remote-shaped cursor (hotspot at laser dot top-left).
     auto setProceduralCursor = [&]()
     {
         GLFWcursor* cursor = createProceduralRemoteCursor();
@@ -169,12 +170,12 @@ int main()
     double logAccumulator = 0.0;
     int logFrames = 0;
 
-    auto lastTime = std::chrono::steady_clock::now();
+    auto lastTime = std::chrono::steady_clock::now(); // main clock source
 
     while (!glfwWindowShouldClose(window))
     {
         auto frameStartTime = std::chrono::steady_clock::now();
-        float deltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(frameStartTime - lastTime).count();
+        float deltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(frameStartTime - lastTime).count(); // seconds since last frame
         lastTime = frameStartTime;
         logAccumulator += deltaTime;
         ++logFrames;
@@ -183,7 +184,7 @@ int main()
             double avgDelta = logAccumulator / static_cast<double>(logFrames);
             double avgFps = avgDelta > 0.0 ? 1.0 / avgDelta : 0.0;
             char buf[64];
-            std::snprintf(buf, sizeof(buf), "FPS %.1f", avgFps);
+            std::snprintf(buf, sizeof(buf), "FPS %.1f", avgFps); // once per second
             frameStats = buf;
             logAccumulator = 0.0;
             logFrames = 0;
@@ -347,7 +348,7 @@ int main()
         auto now = std::chrono::steady_clock::now();
         if (now < targetTime)
         {
-            std::this_thread::sleep_until(targetTime);
+            std::this_thread::sleep_until(targetTime); // coarse frame limiter to ~75 FPS
         }
     }
 

@@ -75,6 +75,7 @@ void Renderer2D::drawRect(float x, float y, float w, float h, const Color& color
 
 void Renderer2D::drawCircle(float cx, float cy, float radius, const Color& color, int segments) const
 {
+    // Fan triangulation for filled circle.
     std::vector<float> vertices;
     vertices.reserve((segments + 2) * 2);
 

@@ -2,6 +2,7 @@
 
 #include "../Header/Renderer2D.h"
 
+// Mutable simulation state updated every frame.
 struct AppState
 {
     bool isOn = false;

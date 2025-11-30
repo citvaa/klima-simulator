@@ -5,6 +5,7 @@
 
 void handlePowerToggle(AppState& state, double mouseX, double mouseY, bool mouseDown, const CircleShape& lamp)
 {
+    // Toggle AC on lamp click; ignore if locked by full bowl.
     if (mouseDown && !state.prevMouseDown)
     {
         float dx = static_cast<float>(mouseX) - lamp.x;
@@ -21,6 +22,7 @@ void handlePowerToggle(AppState& state, double mouseX, double mouseY, bool mouse
 
 void updateVent(AppState& state, float deltaTime)
 {
+    // Animate vent toward open/closed target.
     float targetOpenness = state.isOn && !state.lockedByFullBowl ? 1.0f : 0.0f;
     if (state.ventOpenness < targetOpenness)
     {
@@ -34,6 +36,7 @@ void updateVent(AppState& state, float deltaTime)
 
 void handleTemperatureInput(AppState& state, bool upPressed, bool downPressed)
 {
+    // Edge-detect arrow keys and clamp desired temp.
     bool upEdge = upPressed && !state.prevUpPressed;
     bool downEdge = downPressed && !state.prevDownPressed;
 
@@ -55,6 +58,7 @@ void handleTemperatureInput(AppState& state, bool upPressed, bool downPressed)
 
 void updateTemperature(AppState& state, float deltaTime)
 {
+    // Drift measured temp toward desired while AC is active.
     if (!state.isOn || state.lockedByFullBowl) return;
 
     float diff = state.desiredTemp - state.currentTemp;
@@ -72,6 +76,7 @@ void updateTemperature(AppState& state, float deltaTime)
 
 void updateWater(AppState& state, float deltaTime, bool spacePressed)
 {
+    // Fill bowl over time while AC runs; Space drains and unlocks.
     bool spaceEdge = spacePressed && !state.prevSpacePressed;
     if (spaceEdge)
     {
