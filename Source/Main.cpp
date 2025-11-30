@@ -156,14 +156,14 @@ int main()
     const float acY = 140.0f;
 
     RectShape acBody{ acX, acY, acWidth, acHeight, bodyColor };
-    RectShape ventBar{ acX + 32.0f, acY + acHeight - 36.0f, acWidth - 64.0f, 18.0f, ventColor };
-    CircleShape lamp{ acX + acWidth - 44.0f, acY + acHeight - 40.0f, 14.0f, lampOffColor };
+    RectShape ventBar{ acX + 24.0f, acY + acHeight - 64.0f, acWidth - 48.0f, 16.0f, ventColor };
+    CircleShape lamp{ acX + acWidth - 44.0f, acY + acHeight - 26.0f, 14.0f, lampOffColor };
 
-    const float screenWidth = 82.0f;
-    const float screenHeight = 48.0f;
-    const float screenSpacing = 18.0f;
-    const float screenStartX = acX + 190.0f;
-    const float screenY = acY + 64.0f;
+    const float screenWidth = 94.0f;
+    const float screenHeight = 54.0f;
+    const float screenSpacing = 22.0f;
+    const float screenStartX = acX + 70.0f;
+    const float screenY = acY + 52.0f;
     std::array<RectShape, 3> screens{};
     for (size_t i = 0; i < screens.size(); ++i)
     {
